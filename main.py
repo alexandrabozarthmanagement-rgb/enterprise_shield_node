@@ -7,11 +7,34 @@ app = FastAPI()
 PAYMENT_REQ_DATA = {
     "x402Version": 2,
     "error": "PAYMENT_REQUIRED",
+    "resource": {
+        "url": "https://enterprise-shield-node.onrender.com/v1/institutional-verify",
+        "description": "Institutional verification API endpoint gated by x402 tollbooth",
+        "mimeType": "application/json"
+    },
     "accepts": [{
         "network": "eip155:8453",
+        "scheme": "exact",
         "amount": "50000000",
-        "payTo": "0xef45b3724Fb9b676d5532f588c4a5d3cCb50Db17"
-    }]
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "payTo": "0xef45b3724Fb9b676d5532f588c4a5d3cCb50Db17",
+        "maxTimeoutSeconds": 60
+    }],
+    "extensions": {
+        "bazaar": {
+            "inputSchema": {
+                "type": "object",
+                "properties": {}
+            },
+            "outputSchema": {
+                "type": "object",
+                "properties": {
+                    "status": {"type": "string"},
+                    "verified": {"type": "boolean"}
+                }
+            }
+        }
+    }
 }
 
 PAYMENT_REQ_JSON_STR = json.dumps(PAYMENT_REQ_DATA, separators=(",", ":"))
