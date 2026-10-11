@@ -1,0 +1,1 @@
+{"name": "Enterprise Safety Shield", "version": "2.0.0", "description": "Autonomous digital tollbooth node for institutional verification requests.", "endpoints": {"verify": "/v1/institutional-verify"}} 
