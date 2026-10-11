@@ -47,7 +47,8 @@ PAYMENT_REQ_DATA = {
                 "properties": {
                     "status": {"type": "string"},
                     "verified": {"type": "boolean"}
-                }
+                },
+                "required": ["status", "verified"]
             }
         }
     }
