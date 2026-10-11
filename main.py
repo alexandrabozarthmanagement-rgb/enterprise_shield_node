@@ -1,5 +1,8 @@
+from fastapi import FastAPI, Request, Response
 import base64
 import json
+
+app = FastAPI()
 
 PAYMENT_REQ_DATA = {
     "x402Version": 2,
@@ -14,46 +17,22 @@ PAYMENT_REQ_DATA = {
 PAYMENT_REQ_JSON_STR = json.dumps(PAYMENT_REQ_DATA, separators=(",", ":"))
 ENCODED_PAYMENT_HEADER = base64.b6aencode(PAYMENT_REQ_JSON_STR.encode("utf-8")).decode("utf-8")
 
-async def app(scope, receive, send):
-    if scope["type"] == "http":
-        path = scope.get("path", "")
-        if path == "/v1/institutional-verify":
-            # Check headers for payment signature
-            headers = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
-            payment_sig = headers.get("payment-signature") or headers.get("x-payment")
-            
-            if not payment_sig:
-                body_bytes = PAYMENT_REQ_JSON_STR.encode("utf-8")
-                # Send raw ASGI response with exact uppercase/hyphenated header casing
-                await send({
-                    "type": "http.response.start",
-                    "status": 402,
-                    "headers": [
-                        (b"content-type", b"application/json"),
-                        (b"PAYMENT-REQUIRED", ENCODED_PAYMENT_HEADER.encode("latin-1")),
-                        (b"x-payment-required", ENCODED_PAYMENT_HEADER.encode("latin-1")),
-                        (b"access-control-allow-origin", b"*"),
-                        (b"access-control-expose-headers", b"PAYMENT-REQUIRED, x-payment-required"),
-                        (b"content-length", str(len(body_bytes)).encode("latin-1")),
-                    ],
-                })
-                await send({
-                    "type": "http.response.body",
-                    "body": body_bytes,
-                })
-                return
+@app.api_route("/v1/institutional-verify", methods=["GET", "POST", "OPTIONS"])
+async def institutional_verify(request: Request):
+    payment_sig = request.headers.get("payment-signature") or request.headers.get("x-payment")
+    
+    if not payment_sig:
+        headers = {
+            "Payment-Required": ENCODED_PAYMENT_HEADER,
+            "x-payment-required": ENCODED_PAYMENT_HEADER,
+            "Access-Control-Expose-Headers": "Payment-Required, x-payment-required",
+            "Access-Control-Allow-Origin": "*"
+        }
+        return Response(
+            content=PAYMENT_REQ_JSON_STR,
+            status_code=402,
+            media_type="application/json",
+            headers=headers
+        )
 
-        # Default success response for paid requests
-        body_bytes = b'{"status":"success","verified":true}'
-        await send({
-            "type": "http.response.start",
-            "status": 200,
-            "headers": [
-                (b"content-type", b"application/json"),
-                (b"access-control-allow-origin", b"*"),
-            ],
-        })
-        await send({
-            "type": "http.response.body",
-            "body": body_bytes,
-        })
+    return {"status": "success", "verified": True}
