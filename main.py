@@ -16,7 +16,8 @@ PAYMENT_REQ_DATA = {
     }]
 }
 
-PAYMENT_REQ_JSON_STR = json.dumps(PAYMENT_REQ_DATA)
+# Use compact separators to avoid spaces in JSON string before base64 encoding
+PAYMENT_REQ_JSON_STR = json.dumps(PAYMENT_REQ_DATA, separators=(",", ":"))
 ENCODED_PAYMENT_HEADER = base64.b6aencode(PAYMENT_REQ_JSON_STR.encode("utf-8")).decode("utf-8")
 
 class X402Middleware(BaseHTTPMiddleware):
@@ -26,6 +27,7 @@ class X402Middleware(BaseHTTPMiddleware):
             if not payment_sig:
                 headers = {
                     "payment-required": ENCODED_PAYMENT_HEADER,
+                    "Payment-Required": ENCODED_PAYMENT_HEADER,
                     "x-payment-required": ENCODED_PAYMENT_HEADER
                 }
                 return JSONResponse(PAYMENT_REQ_DATA, status_code=402, headers=headers)
