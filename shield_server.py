@@ -28,7 +28,6 @@ async def verify(request: Request, payload: CheckReq):
         encoded = base64.b64encode(json.dumps(challenge).encode()).decode()
         return Response(content=json.dumps(challenge), status_code=402, headers={"PAYMENT-REQUIRED": encoded, "X-PAYMENT-REQUIRED": encoded})
     
-    # Real on-chain verification via x402 protocol
     valid = verify_payment(auth_header, expected_pay_to=NODE_OPERATOR_WALLET, expected_amount="50000000", network="eip155:8453")
     if not valid:
         encoded = base64.b64encode(json.dumps(challenge).encode()).decode()
