@@ -1,19 +1,16 @@
-from fastapi import FastAPI, Request, Response, status 
-from pydantic import BaseModel, Field 
-import base64, json, hashlib, time 
- 
+from fastapi import FastAPI, Request, Response 
+from fastapi.responses import FileResponse 
+from pydantic import BaseModel 
+import base64, json 
 app = FastAPI(title="Enterprise Safety Shield", version="2.0.0") 
 NODE_OPERATOR_WALLET = "0xef45b3724Fb9b676d5532f588c4a5d3cCb50Db17" 
- 
 class CheckReq(BaseModel): 
     workflow_id: str 
     payload_fingerprint: str 
     check_type: str 
- 
 @app.get("/.well-known/agent-card.json") 
 def agent_card(): 
-    return {"node_id": "shield-v1", "pricing": {"network": "eip155:8453", "cost_per_call_atomic": "50000000"}} 
- 
+    return FileResponse("agent-card.json", media_type="application/json") 
 @app.post("/v1/institutional-verify") 
 async def verify(request: Request, payload: CheckReq): 
     if not request.headers.get("X-Payment-Authorization"): 
