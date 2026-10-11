@@ -28,7 +28,7 @@ PAYMENT_REQ_DATA = {
                 "input": {
                     "type": "object",
                     "method": "POST",
-                    "params": {}
+                    "params": {"agent_id": "string"}
                 },
                 "output": {
                     "type": "object",
@@ -41,8 +41,10 @@ PAYMENT_REQ_DATA = {
             "schema": {
                 "input": {
                     "type": "object",
-                    "properties": {},
-                    "required": []
+                    "properties": {
+                        "agent_id": {"type": "string"}
+                    },
+                    "required": ["agent_id"]
                 },
                 "output": {
                     "type": "object",
