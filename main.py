@@ -38,17 +38,20 @@ PAYMENT_REQ_DATA = {
                     }
                 }
             },
-            "inputSchema": {
-                "type": "object",
-                "properties": {}
-            },
-            "outputSchema": {
-                "type": "object",
-                "properties": {
-                    "status": {"type": "string"},
-                    "verified": {"type": "boolean"}
+            "schema": {
+                "input": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
                 },
-                "required": ["status", "verified"]
+                "output": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"type": "string"},
+                        "verified": {"type": "boolean"}
+                    },
+                    "required": ["status", "verified"]
+                }
             }
         }
     }
