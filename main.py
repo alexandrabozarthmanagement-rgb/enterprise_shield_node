@@ -15,7 +15,7 @@ PAYMENT_REQ_DATA = {
 }
 
 PAYMENT_REQ_JSON_STR = json.dumps(PAYMENT_REQ_DATA, separators=(",", ":"))
-ENCODED_PAYMENT_HEADER = base64.b6aencode(PAYMENT_REQ_JSON_STR.encode("utf-8")).decode("utf-8")
+ENCODED_PAYMENT_HEADER = base64.b64encode(PAYMENT_REQ_JSON_STR.encode("utf-8")).decode("utf-8")
 
 @app.api_route("/v1/institutional-verify", methods=["GET", "POST", "OPTIONS"])
 async def institutional_verify(request: Request):
