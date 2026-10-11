@@ -22,6 +22,10 @@ PAYMENT_REQ_DATA = {
     }],
     "extensions": {
         "bazaar": {
+            "info": {
+                "title": "Institutional Verification API",
+                "description": "Gated verification endpoint for AI agents requiring 50 USDC payment on Base."
+            },
             "inputSchema": {
                 "type": "object",
                 "properties": {}
