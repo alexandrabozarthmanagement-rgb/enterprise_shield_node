@@ -49,13 +49,45 @@ async def verify_main(request: Request):
     challenge = {
         "x402Version": 2,
         "error": "PAYMENT_REQUIRED",
+        "resource": {
+            "url": "https://enterprise-shield-node.onrender.com/v1/institutional-verify",
+            "description": "Institutional verification API endpoint gated by x402 tollbooth",
+            "mimeType": "application/json"
+        },
         "accepts": [{
             "scheme": "exact",
             "network": "eip155:8453", # Base Mainnet
-            "amount": "50000000",      # $50.00 USDC
+            "amount": "50000000",      # $50.00 USDC (6 decimals)
             "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            "payTo": NODE_OPERATOR_WALLET
-        }]
+            "payTo": NODE_OPERATOR_WALLET,
+            "maxTimeoutSeconds": 60
+        }],
+        "extensions": {
+            "bazaar": {
+                "discoverable": True,
+                "info": {
+                    "title": "Institutional Verification API",
+                    "description": "Gated verification endpoint for AI agents requiring 50 USDC payment on Base.",
+                    "category": "compliance",
+                    "provider": "Enterprise Shield Node"
+                },
+                "input": {
+                    "type": "object",
+                    "properties": {
+                        "agent_id": {"type": "string", "description": "Unique identifier of requesting agent"}
+                    },
+                    "required": ["agent_id"]
+                },
+                "output": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"type": "string"},
+                        "verified": {"type": "boolean"},
+                        "verification_report": {"type": "object"}
+                    }
+                }
+            }
+        }
     }
 
     if not auth_header:
@@ -66,7 +98,7 @@ async def verify_main(request: Request):
             headers={"PAYMENT-REQUIRED": encoded, "X-PAYMENT-REQUIRED": encoded}
         )
 
-    # Cryptographic Verification Step
+    # Cryptographic Verification Step via Facilitator
     async with httpx.AsyncClient() as client:
         verify_resp = await client.post(
             FACILITATOR_VERIFY_URL,
@@ -92,6 +124,7 @@ async def verify_main(request: Request):
 
     return {
         "status": "INSTITUTIONAL_VERIFIED",
+        "verified": True,
         "timestamp": timestamp,
         "payee": NODE_OPERATOR_WALLET,
         "verification_report": {
