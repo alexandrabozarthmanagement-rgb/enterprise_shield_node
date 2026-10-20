@@ -43,3 +43,9 @@ async def verify(request: Request, payload: CheckReq):
         return Response(content=json.dumps(challenge), status_code=402, headers={"PAYMENT-REQUIRED": encoded, "X-PAYMENT-REQUIRED": encoded})
 
     return {"status": "SETTLED_AND_VERIFIED", "tx_auth": auth_header}
+@app.post("/v1/institutional-verify-lite") 
+async def verify_lite(request: Request): 
+    if not request.headers.get("X-Payment-Authorization"): 
+        challenge = {"x402Version": 2, "error": "PAYMENT_REQUIRED", "accepts": [{"network": "eip155:8453", "amount": "100000", "payTo": NODE_OPERATOR_WALLET}]} 
+        return Response(content=json.dumps(challenge), status_code=402, headers={"PAYMENT-REQUIRED": base64.b64encode(json.dumps(challenge).encode()).decode()}) 
+    return {"status": "LITE_VERIFIED"} 
