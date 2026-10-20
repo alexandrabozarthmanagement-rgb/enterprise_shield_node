@@ -1,9 +1,14 @@
-import base64, json, time, hashlib, sqlite3, httpx
+import base64, json, time, hashlib, sqlite3, os, httpx
 from fastapi import FastAPI, Request, Response
+from dotenv import load_dotenv
+
+# Load local environment variables from .env if present
+load_dotenv()
 
 app = FastAPI(title="Enterprise Safety Shield API")
 NODE_OPERATOR_WALLET = "0xef45b3724Fb9b676d5532f588c4a5d3cCb50Db17"
 FACILITATOR_VERIFY_URL = "https://gateway-api.circle.com/v1/x402/verify"
+PRIVATE_KEY = os.getenv("NODE_PRIVATE_KEY") or os.getenv("AGENT_PRIVATE_KEY")
 
 # Initialize Local Transaction Ledger
 def init_db():
@@ -22,6 +27,16 @@ def init_db():
     conn.close()
 
 init_db()
+
+@app.get("/")
+async def root():
+    return {
+        "status": "ACTIVE",
+        "node": "Enterprise Safety Shield",
+        "network": "Base Mainnet",
+        "payTo": NODE_OPERATOR_WALLET,
+        "key_loaded": bool(PRIVATE_KEY)
+    }
 
 @app.post("/v1/institutional-verify")
 async def verify_main(request: Request):
